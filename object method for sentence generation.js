@@ -34,3 +34,6 @@ sentenceBuilder.updateProperty("subject", "The cat");
 console.log(sentenceBuilder.buildSentence()); 
 
 console.log(sentenceBuilder.updateProperty("mood", "happy")); 
+
+sentenceBuilder.updateProperty("verb", "");
+ console.log(sentenceBuilder.buildSentence());
