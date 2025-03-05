@@ -18,8 +18,8 @@ const employeelist= (employee.filter(employee=> employee.tasksCompleted>5))
                              employee.rating>3 ? "good" :
                              "need improvement"
                      }))
-      const performanceOrder = { "performance:excellent": 1, "performance:good": 2, "need improvement": 3 };               
-  const finalList=employeelist.sort((a,b)=>performanceOrder[a.rating] - performanceOrder[b.rating])
+      const performanceOrder = { "excellent": 1, "good": 2, "need improvement": 3 };               
+  const finalList=employeelist.sort((a,b)=>performanceOrder[a.performance] - performanceOrder[b.performance])
                      
                      
 console.log(finalList);
