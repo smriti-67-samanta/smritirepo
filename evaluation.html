@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            background-color: rgb(81, 81, 177);
+        }
+        #d{
+            background-color: rgb(52, 46, 46);
+            padding: 10px;
+            height: 100px;
+        }
+        h2:hover {
+            background-color: skyblue;
+        }
+
+        div#box{
+            width: 80%;
+            height: auto;
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            margin: auto;
+            gap: 20px;
+            padding: 10px;
+        }
+        div#box>div{
+            border: none;
+           
+        }
+        .n1{
+            text-align: center;
+            
+        }
+        footer{
+            height: 100px;
+            background-color: rgb(33, 29, 29);
+            
+            text-align: center;
+        }
+        nav:hover{
+            background-color: antiquewhite;
+        }
+    </style>
+</head>
+<body>
+    <header>
+    <div id="d">
+        <h2 style="color:white; text-align: center;">
+          STORE  COMMUNITY  ABOUT  SUPPORT
+        </h2>
+        <nav class="n1">
+            <a href="Your Store">About</a>
+            <a href="New & Noteworthy">Projects</a>
+            <a href="Categories">Contact</a>
+            <a href="News">Contact</a>
+            <a href="Labs">Contact</a>
+        </nav>
+        </div>
+    </header>
+        <main>
+            <h1 style="color: white; text-align: center;">UPCOMING RELEASES</h1>
+            <div id="box">
+                <div><img src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2868840/header.jpg?t=1734519665"/>
+                 <p style="color: azure;"> Top Wishlists</p>
+                  <p style="color: azure;">$5,999</p></div>
+                <div><img src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2868840/header.jpg?t=1734519665"/>
+                    <p style="color: azure;">Top Wishlists</p></div>
+                <div><img src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3017860/header.jpg?t=1743700002"/></div>
+                <div><img src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3017860/header.jpg?t=1743700002"/></div>
+            </div>
+        </main>
+     <footer>
+        <nav>
+            <a href="About Valve"> about</a>
+            <a href="Jobs"> jobs</a>
+            <a href="Steamwork"> steamworks</a>
+            <a href="Supports">supports</a>
+            <a href="Gift Cards">gift card</a>
+            <a href="facebook">facebook</a>
+            <a href="twitter">twitter</a>
+        </nav>
+     </footer>
+</body>
+</html>
