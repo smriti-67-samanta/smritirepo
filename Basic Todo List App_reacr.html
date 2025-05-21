@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React Todo List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .todo-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .task-input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .add-button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .add-button:hover {
+            background-color: #45a049;
+        }
+        
+        .clear-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .clear-button:hover {
+            background-color: #d32f2f;
+        }
+        
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script type="text/babel">
+        function TodoList() {
+           
+            const [tasks, setTasks] = React.useState(["Buy milk", "Study React"]);
+            const [newTask, setNewTask] = React.useState("");
+            
+           
+            const addTask = () => {
+                if (newTask.trim() === "") return; 
+                
+                setTasks(prevTasks => [...prevTasks, newTask]);
+                setNewTask(""); 
+            };
+            
+           
+            const clearAllTasks = () => {
+                setTasks([]);
+            };
+            
+           
+            const handleKeyPress = (e) => {
+                if (e.key === "Enter") {
+                    addTask();
+                }
+            };
+            
+            return (
+                <div className="todo-container">
+                    <h1>Todo List</h1>
+                    
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className="task-input"
+                            placeholder="Add a new task..."
+                            value={newTask}
+                            onChange={(e) => setNewTask(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                        />
+                        <button className="add-button" onClick={addTask}>
+                            Add
+                        </button>
+                    </div>
+                    
+                    {tasks.length === 0 ? (
+                        <div className="empty-message">No tasks available.</div>
+                    ) : (
+                        <ul className="task-list">
+                            {tasks.map((task, index) => (
+                                <li key={index} className="task-item">
+                                    {task}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                    
+                    {tasks.length > 0 && (
+                        <button className="clear-button" onClick={clearAllTasks}>
+                            Clear All
+                        </button>
+                    )}
+                </div>
+            );
+        }
+        
+       
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<TodoList />);
+    </script>
+</body>
+</html>
