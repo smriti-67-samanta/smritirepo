@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .attendance-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .total-present {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .student-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+        
+        .present {
+            background-color: #e8f5e9;
+            border-left-color: #4CAF50;
+        }
+        
+        .absent {
+            background-color: #ffebee;
+            border-left-color: #f44336;
+        }
+        
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status {
+            font-weight: bold;
+        }
+        
+        .present .status {
+            color: #4CAF50;
+        }
+        
+        .absent .status {
+            color: #f44336;
+        }
+        
+        .toggle-button {
+            padding: 8px 16px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .toggle-button:hover {
+            background-color: #0b7dda;
+        }
+        
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+   
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+   
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script type="text/babel">
+        function AttendanceManager() {
+           
+            const [students, setStudents] = React.useState([
+                { id: 1, name: "Alice Johnson", present: true },
+                { id: 2, name: "Bob Smith", present: false },
+                { id: 3, name: "Charlie Brown", present: true },
+                { id: 4, name: "Diana Prince", present: false },
+                { id: 5, name: "Ethan Hunt", present: true }
+            ]);
+            
+            const [filter, setFilter] = React.useState("All");
+            
+           
+            const toggleAttendance = (id) => {
+                setStudents(prevStudents => 
+                    prevStudents.map(student => 
+                        student.id === id ? { ...student, present: !student.present } : student
+                    )
+                );
+            };
+            
+           
+            const totalPresent = students.filter(student => student.present).length;
+            
+          
+            const filteredStudents = React.useMemo(() => {
+                if (filter === "Present") {
+                    return students.filter(student => student.present);
+                } else if (filter === "Absent") {
+                    return students.filter(student => !student.present);
+                }
+                return students;
+            }, [students, filter]);
+            
+            return (
+                <div className="attendance-container">
+                    <h1>Attendance Manager</h1>
+                    
+                    <div className="controls">
+                        <div className="total-present">
+                            Present: {totalPresent}/{students.length}
+                        </div>
+                        
+                        <select
+                            className="filter-select"
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value)}
+                        >
+                            <option value="All">All Students</option>
+                            <option value="Present">Present Only</option>
+                            <option value="Absent">Absent Only</option>
+                        </select>
+                    </div>
+                    
+                    <ul className="student-list">
+                        {filteredStudents.length === 0 ? (
+                            <div className="empty-message">
+                                No students match the current filter
+                            </div>
+                        ) : (
+                            filteredStudents.map(student => (
+                                <li 
+                                    key={student.id} 
+                                    className={`student-item ${student.present ? 'present' : 'absent'}`}
+                                >
+                                    <div className="student-info">
+                                        <span>{student.name}</span>
+                                        <span className="status">
+                                            {student.present ? 'Present' : 'Absent'}
+                                        </span>
+                                    </div>
+                                    
+                                    <button 
+                                        className="toggle-button"
+                                        onClick={() => toggleAttendance(student.id)}
+                                    >
+                                        Toggle
+                                    </button>
+                                </li>
+                            ))
+                        )}
+                    </ul>
+                </div>
+            );
+        }
+        
+      
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<AttendanceManager />);
+    </script>
+</body>
+</html>
