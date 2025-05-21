@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Task Manager</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --background-color: #f8f9fa;
+            --card-color: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+            --high-priority: #ff6b6b;
+            --medium-priority: #ffd166;
+            --low-priority: #06d6a0;
+            --completed-task: #e9ecef;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--card-color);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        .task-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .task-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .priority-select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+            min-width: 120px;
+        }
+
+        .add-button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        .add-button:hover {
+            background-color: #3a5a80;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .filter-label {
+            font-weight: 600;
+        }
+
+        .filter-select {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: var(--card-color);
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            border-left: 4px solid;
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .task-item.high {
+            border-left-color: var(--high-priority);
+        }
+
+        .task-item.medium {
+            border-left-color: var(--medium-priority);
+        }
+
+        .task-item.low {
+            border-left-color: var(--low-priority);
+        }
+
+        .task-item.completed {
+            background-color: var(--completed-task);
+        }
+
+        .task-checkbox {
+            margin-right: 15px;
+            transform: scale(1.3);
+            cursor: pointer;
+        }
+
+        .task-title {
+            flex: 1;
+            font-size: 16px;
+            margin-right: 15px;
+            word-break: break-word;
+        }
+
+        .task-title.completed {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .task-priority {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 15px;
+            color: white;
+        }
+
+        .priority-high {
+            background-color: var(--high-priority);
+        }
+
+        .priority-medium {
+            background-color: var(--medium-priority);
+        }
+
+        .priority-low {
+            background-color: var(--low-priority);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+
+        .action-button:hover {
+            opacity: 0.8;
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .priority-button {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .no-tasks {
+            text-align: center;
+            padding: 30px;
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+  
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script type="text/babel">
+        function TaskManager() {
+            const [tasks, setTasks] = React.useState([]);
+            const [newTaskTitle, setNewTaskTitle] = React.useState('');
+            const [newTaskPriority, setNewTaskPriority] = React.useState('Medium');
+            const [priorityFilter, setPriorityFilter] = React.useState('All');
+            const [statusFilter, setStatusFilter] = React.useState('All');
+
+           
+            const addTask = () => {
+                if (newTaskTitle.trim() === '') return;
+                
+                const newTask = {
+                    id: Date.now(),
+                    title: newTaskTitle,
+                    priority: newTaskPriority,
+                    completed: false
+                };
+                
+                setTasks(prevTasks => {
+                    const updatedTasks = [...prevTasks, newTask];
+                    return sortTasks(updatedTasks);
+                });
+                
+                setNewTaskTitle('');
+            };
+
+           
+            const sortTasks = (tasksArray) => {
+                const priorityOrder = { High: 3, Medium: 2, Low: 1 };
+                return [...tasksArray].sort((a, b) => {
+                    return priorityOrder[b.priority] - priorityOrder[a.priority];
+                });
+            };
+
+           
+            const toggleTaskCompletion = (taskId) => {
+                setTasks(prevTasks => {
+                    const updatedTasks = prevTasks.map(task => 
+                        task.id === taskId ? { ...task, completed: !task.completed } : task
+                    );
+                    return sortTasks(updatedTasks);
+                });
+            };
+
+           
+            const deleteTask = (taskId) => {
+                setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+            };
+
+           
+            const changeTaskPriority = (taskId, newPriority) => {
+                setTasks(prevTasks => {
+                    const updatedTasks = prevTasks.map(task => 
+                        task.id === taskId ? { ...task, priority: newPriority } : task
+                    );
+                    return sortTasks(updatedTasks);
+                });
+            };
+
+           
+            const filteredTasks = React.useMemo(() => {
+                return tasks.filter(task => {
+                    const matchesPriority = priorityFilter === 'All' || task.priority === priorityFilter;
+                    const matchesStatus = 
+                        statusFilter === 'All' || 
+                        (statusFilter === 'Completed' && task.completed) || 
+                        (statusFilter === 'Incomplete' && !task.completed);
+                    
+                    return matchesPriority && matchesStatus;
+                });
+            }, [tasks, priorityFilter, statusFilter]);
+
+            return (
+                <div className="container">
+                    <h1>Advanced Task Manager</h1>
+                    
+                    <div className="task-form">
+                        <input
+                            type="text"
+                            className="task-input"
+                            placeholder="Enter task title..."
+                            value={newTaskTitle}
+                            onChange={(e) => setNewTaskTitle(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && addTask()}
+                        />
+                        
+                        <select
+                            className="priority-select"
+                            value={newTaskPriority}
+                            onChange={(e) => setNewTaskPriority(e.target.value)}
+                        >
+                            <option value="High">High Priority</option>
+                            <option value="Medium">Medium Priority</option>
+                            <option value="Low">Low Priority</option>
+                        </select>
+                        
+                        <button className="add-button" onClick={addTask}>
+                            Add Task
+                        </button>
+                    </div>
+                    
+                    <div className="filters">
+                        <div className="filter-group">
+                            <span className="filter-label">Priority:</span>
+                            <select
+                                className="filter-select"
+                                value={priorityFilter}
+                                onChange={(e) => setPriorityFilter(e.target.value)}
+                            >
+                                <option value="All">All</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+                        
+                        <div className="filter-group">
+                            <span className="filter-label">Status:</span>
+                            <select
+                                className="filter-select"
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                            >
+                                <option value="All">All</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Incomplete">Incomplete</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <ul className="task-list">
+                        {filteredTasks.length === 0 ? (
+                            <div className="no-tasks">
+                                {tasks.length === 0 ? 'No tasks added yet' : 'No tasks match your filters'}
+                            </div>
+                        ) : (
+                            filteredTasks.map(task => (
+                                <li 
+                                    key={task.id} 
+                                    className={`task-item ${task.priority.toLowerCase()} ${task.completed ? 'completed' : ''}`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        className="task-checkbox"
+                                        checked={task.completed}
+                                        onChange={() => toggleTaskCompletion(task.id)}
+                                    />
+                                    
+                                    <span className={`task-title ${task.completed ? 'completed' : ''}`}>
+                                        {task.title}
+                                    </span>
+                                    
+                                    <span className={`task-priority priority-${task.priority.toLowerCase()}`}>
+                                        {task.priority}
+                                    </span>
+                                    
+                                    <div className="task-actions">
+                                        <select
+                                            className="priority-button"
+                                            value={task.priority}
+                                            onChange={(e) => changeTaskPriority(task.id, e.target.value)}
+                                        >
+                                            <option value="High">High</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="Low">Low</option>
+                                        </select>
+                                        
+                                        <button 
+                                            className="action-button delete-button"
+                                            onClick={() => deleteTask(task.id)}
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </li>
+                            ))
+                        )}
+                    </ul>
+                </div>
+            );
+        }
+        
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<TaskManager />);
+    </script>
+</body>
+</html>
