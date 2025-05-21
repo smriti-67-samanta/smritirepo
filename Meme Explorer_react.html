@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meme Explorer</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --card-bg: #f5f5f5;
+            --border-color: #e0e0e0;
+            --button-bg: #4CAF50;
+            --button-text: white;
+        }
+
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #f5f5f5;
+            --card-bg: #2d2d2d;
+            --border-color: #444444;
+            --button-bg: #2E7D32;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        input, select {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .meme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .meme-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .meme-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .meme-image {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            background-color: white;
+        }
+
+        .meme-name {
+            padding: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #09f;
+            animation: spin 1s linear infinite;
+            margin: 40px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            text-align: center;
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <!-- React, ReactDOM, and Axios CDN links -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    
+    <!-- Babel for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script type="text/babel">
+        function App() {
+            const [memes, setMemes] = React.useState([]);
+            const [loading, setLoading] = React.useState(false);
+            const [error, setError] = React.useState(null);
+            const [searchTerm, setSearchTerm] = React.useState('');
+            const [sortBy, setSortBy] = React.useState('none');
+            const [filterBy, setFilterBy] = React.useState('none');
+            const [darkMode, setDarkMode] = React.useState(() => {
+                const savedTheme = localStorage.getItem('memeExplorerTheme');
+                return savedTheme ? savedTheme === 'dark' : false;
+            });
+
+            // Apply dark mode class to body
+            React.useEffect(() => {
+                document.body.className = darkMode ? 'dark-mode' : '';
+                localStorage.setItem('memeExplorerTheme', darkMode ? 'dark' : 'light');
+            }, [darkMode]);
+
+            const fetchMemes = () => {
+                setLoading(true);
+                setError(null);
+                
+                axios.get('https://api.imgflip.com/get_memes')
+                    .then(response => {
+                        if (response.data.success) {
+                            setMemes(response.data.data.memes);
+                        } else {
+                            throw new Error('Failed to fetch memes');
+                        }
+                    })
+                    .catch(error => {
+                        setError(error.message);
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                    });
+            };
+
+            const resetAll = () => {
+                setSearchTerm('');
+                setSortBy('none');
+                setFilterBy('none');
+            };
+
+            const toggleTheme = () => {
+                setDarkMode(!darkMode);
+            };
+
+            // Filter and sort memes based on user selections
+            const filteredMemes = React.useMemo(() => {
+                let result = [...memes];
+                
+                // Apply search filter
+                if (searchTerm) {
+                    const term = searchTerm.toLowerCase();
+                    result = result.filter(meme => 
+                        meme.name.toLowerCase().includes(term)
+                    );
+                }
+                
+                // Apply size filter
+                if (filterBy === 'width') {
+                    result = result.filter(meme => meme.width > 500);
+                } else if (filterBy === 'height') {
+                    result = result.filter(meme => meme.height > 500);
+                }
+                
+                // Apply sorting
+                if (sortBy === 'name') {
+                    result.sort((a, b) => a.name.localeCompare(b.name));
+                } else if (sortBy === 'width') {
+                    result.sort((a, b) => b.width - a.width);
+                }
+                
+                return result;
+            }, [memes, searchTerm, sortBy, filterBy]);
+
+            return (
+                <div className="container">
+                    <h1>Meme Explorer</h1>
+                    
+                    <div className="controls">
+                        <button 
+                            onClick={fetchMemes}
+                            disabled={loading}
+                        >
+                            {loading ? 'Loading...' : 'Load Memes'}
+                        </button>
+                        
+                        <input
+                            type="text"
+                            placeholder="Search memes..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                        >
+                            <option value="none">Sort by...</option>
+                            <option value="name">Name (A-Z)</option>
+                            <option value="width">Width (Largest first)</option>
+                        </select>
+                        
+                        <select
+                            value={filterBy}
+                            onChange={(e) => setFilterBy(e.target.value)}
+                        >
+                            <option value="none">Filter by...</option>
+                            <option value="width">Width > 500px</option>
+                            <option value="height">Height > 500px</option>
+                        </select>
+                        
+                        <button onClick={resetAll}>
+                            Reset
+                        </button>
+                        
+                        <div className="theme-toggle">
+                            <span>{darkMode ? 'Dark' : 'Light'}</span>
+                            <label className="switch">
+                                <input 
+                                    type="checkbox" 
+                                    checked={darkMode}
+                                    onChange={toggleTheme}
+                                />
+                                <span className="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    {loading && <div className="spinner"></div>}
+                    
+                    {error && (
+                        <div className="message" style={{ color: 'red' }}>
+                            Error: {error}
+                        </div>
+                    )}
+                    
+                    {!loading && !error && memes.length === 0 && (
+                        <div className="message">
+                            No memes loaded. Click "Load Memes" to fetch data.
+                        </div>
+                    )}
+                    
+                    {!loading && !error && filteredMemes.length === 0 && memes.length > 0 && (
+                        <div className="message">
+                            No memes found matching your criteria.
+                        </div>
+                    )}
+                    
+                    {filteredMemes.length > 0 && (
+                        <div className="meme-grid">
+                            {filteredMemes.map(meme => (
+                                <div key={meme.id} className="meme-card">
+                                    <img 
+                                        src={meme.url} 
+                                        alt={meme.name}
+                                        className="meme-image"
+                                    />
+                                    <div className="meme-name">{meme.name}</div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
