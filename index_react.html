@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Fetcher</title>
+    <style>
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #09f;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <!-- React and ReactDOM CDN links -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script type="text/babel">
+        function App() {
+            const [products, setProducts] = React.useState([]);
+            const [loading, setLoading] = React.useState(false);
+            const [error, setError] = React.useState(null);
+            
+            const fetchProducts = () => {
+                setLoading(true);
+                setError(null);
+                
+                fetch('https://fakestoreapi.com/products')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch products');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        setProducts(data);
+                        setLoading(false);
+                    })
+                    .catch(error => {
+                        setError(error.message);
+                        setLoading(false);
+                    });
+            };
+            
+            const clearProducts = () => {
+                setProducts([]);
+                setError(null);
+            };
+            
+            return (
+                <div style={{
+                    padding: '20px',
+                    maxWidth: '1200px',
+                    margin: '0 auto'
+                }}>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        gap: '10px',
+                        marginBottom: '20px'
+                    }}>
+                        <button 
+                            onClick={fetchProducts}
+                            disabled={loading}
+                            style={{
+                                padding: '10px 20px',
+                                fontSize: '16px',
+                                backgroundColor: loading ? '#cccccc' : '#4CAF50',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {loading ? 'Loading...' : 'Load Products'}
+                        </button>
+                        
+                        {products.length > 0 && (
+                            <button 
+                                onClick={clearProducts}
+                                style={{
+                                    padding: '10px 20px',
+                                    fontSize: '16px',
+                                    backgroundColor: '#f44336',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Clear Products
+                            </button>
+                        )}
+                    </div>
+                    
+                    {loading && (
+                        <div className="spinner"></div>
+                    )}
+                    
+                    {error && (
+                        <div style={{
+                            color: 'red',
+                            textAlign: 'center',
+                            padding: '20px',
+                            backgroundColor: '#ffeeee',
+                            borderRadius: '4px',
+                            marginBottom: '20px'
+                        }}>
+                            Error: {error}
+                        </div>
+                    )}
+                    
+                    {!loading && !error && products.length === 0 && (
+                        <div style={{
+                            textAlign: 'center',
+                            padding: '20px',
+                            backgroundColor: '#f5f5f5',
+                            borderRadius: '4px'
+                        }}>
+                            No products loaded. Click "Load Products" to fetch data.
+                        </div>
+                    )}
+                    
+                    {products.length > 0 && (
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                            gap: '20px'
+                        }}>
+                            {products.map(product => (
+                                <div key={product.id} style={{
+                                    border: '1px solid #ddd',
+                                    borderRadius: '8px',
+                                    overflow: 'hidden',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                    transition: 'transform 0.2s',
+                                    ':hover': {
+                                        transform: 'translateY(-5px)'
+                                    }
+                                }}>
+                                    <div style={{
+                                        height: '200px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        backgroundColor: '#f9f9f9'
+                                    }}>
+                                        <img 
+                                            src={product.image} 
+                                            alt={product.title}
+                                            style={{
+                                                maxWidth: '100%',
+                                                maxHeight: '100%',
+                                                objectFit: 'contain'
+                                            }}
+                                        />
+                                    </div>
+                                    <div style={{ padding: '15px' }}>
+                                        <h3 style={{
+                                            margin: '0 0 10px 0',
+                                            fontSize: '16px',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis'
+                                        }}>
+                                            {product.title}
+                                        </h3>
+                                        <p style={{
+                                            margin: '0',
+                                            fontSize: '18px',
+                                            fontWeight: 'bold',
+                                            color: '#2196F3'
+                                        }}>
+                                            ${product.price}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
