@@ -177,12 +177,12 @@
 <body>
     <div id="root"></div>
     
-    <!-- React, ReactDOM, and Axios CDN links -->
+  
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     
-    <!-- Babel for JSX transformation -->
+   
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <script type="text/babel">
@@ -198,7 +198,7 @@
                 return savedTheme ? savedTheme === 'dark' : false;
             });
 
-            // Apply dark mode class to body
+          
             React.useEffect(() => {
                 document.body.className = darkMode ? 'dark-mode' : '';
                 localStorage.setItem('memeExplorerTheme', darkMode ? 'dark' : 'light');
@@ -234,11 +234,11 @@
                 setDarkMode(!darkMode);
             };
 
-            // Filter and sort memes based on user selections
+           
             const filteredMemes = React.useMemo(() => {
                 let result = [...memes];
                 
-                // Apply search filter
+               
                 if (searchTerm) {
                     const term = searchTerm.toLowerCase();
                     result = result.filter(meme => 
@@ -246,14 +246,14 @@
                     );
                 }
                 
-                // Apply size filter
+               
                 if (filterBy === 'width') {
                     result = result.filter(meme => meme.width > 500);
                 } else if (filterBy === 'height') {
                     result = result.filter(meme => meme.height > 500);
                 }
                 
-                // Apply sorting
+              
                 if (sortBy === 'name') {
                     result.sort((a, b) => a.name.localeCompare(b.name));
                 } else if (sortBy === 'width') {
@@ -355,7 +355,7 @@
             );
         }
         
-        // Render the app
+      
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
